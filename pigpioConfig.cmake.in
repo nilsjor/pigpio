@@ -1,0 +1,9 @@
+# - Config file for the pigpio package
+# It defines the following variables
+#  pigpio_INCLUDE_DIRS - include directories for pigpio 
+#  pigpio_LIBRARIES - libe directories for pigpio
+ 
+# Compute paths
+get_filename_component(pigpio_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(pigpio_INCLUDE_DIRS "@pigpio_include_dirs@")
+set(pigpio_LIBRARIES "@pigpio_libraries@")

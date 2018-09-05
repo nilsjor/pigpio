@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+	<name>pigpio</name>
+	<version>1.0.4</version>
+	<description>
+		pigpio is a library for the Raspberry which allows control of the General Purpose Input Outputs (GPIO).
+		This is a catkinised version based on Noviv's fork, integrating CMake.
+	</description>
+	<license>BSD</license>
+	<url type="repository">https://github.com/Noviv/pigpio.git</url>
+	<maintainer email="pigpio@abyz.me.uk">pigpio</maintainer>
+	<author>Nils Jörgensen</author>
+	<buildtool_depend>cmake</buildtool_depend>
+	<exec_depend>catkin</exec_depend>
+	<export>
+		<!-- Specify that this is not really a ROS package-->
+		<build_type>cmake</build_type>
+	</export>
+</package>
+

@@ -4,7 +4,6 @@ project(pigpio)
 
 set(CMAKE_C_FLAGS "-O3 -Wall -pthread")
 set(PIGPIO_FLAGS "-L. -lrt")
-#set(DESTDIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dest)
 
 # libpigpio.so
 add_library(pigpio SHARED pigpio.c command.c custom.cext)
@@ -64,7 +63,7 @@ add_executable(pig2vcd pig2vcd.c command.c)
 
 # install
 install(DIRECTORY
-	DESTINATION ${DESTDIR}/opt/pigpio/cgi
+	DESTINATION ${CMAKE_INSTALL_PREFIX}/cgi
 	PATTERN ""
 	PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
 		GROUP_READ GROUP_EXECUTE
@@ -72,12 +71,12 @@ install(DIRECTORY
 )
 
 install(TARGETS pigpio pigpiod_if pigpiod_if2 pig2vcd pigpiod pigs
-	LIBRARY DESTINATION ${DESTDIR}/usr/local/lib
-	RUNTIME DESTINATION ${DESTDIR}/usr/local/bin
+	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
 install(FILES pigpio.h pigpiod_if.h pigpiod_if2.h
-	DESTINATION ${DESTDIR}/usr/local/include
+	DESTINATION ${CMAKE_INSTALL_PREFIX}/include
 	PERMISSIONS OWNER_READ OWNER_WRITE
 		GROUP_READ
 		WORLD_READ
@@ -85,7 +84,7 @@ install(FILES pigpio.h pigpiod_if.h pigpiod_if2.h
 
 file(GLOB man_1_SRC "*.1")
 install(FILES ${man_1_SRC}
-	DESTINATION ${DESTDIR}/usr/local/man/man1
+	DESTINATION ${CMAKE_INSTALL_PREFIX}/man/man1
 	PERMISSIONS OWNER_READ OWNER_WRITE
 		GROUP_READ
 		WORLD_READ
@@ -93,7 +92,7 @@ install(FILES ${man_1_SRC}
 
 file(GLOB man_3_SRC "*.3")
 install(FILES ${man_3_SRC}
-	DESTINATION ${DESTDIR}/usr/local/man/man3
+	DESTINATION ${CMAKE_INSTALL_PREFIX}/man/man3
 	PERMISSIONS OWNER_READ OWNER_WRITE
 		GROUP_READ
 		WORLD_READ
@@ -109,7 +108,21 @@ if(PYTHON3_FOUND)
 	install(CODE "execute_process(COMMAND cd ${CMAKE_SOURCE_DIR} && python3 ${setup_SRC} install)")
 endif()
 
-install(CODE "execute_process(COMMAND ldconfig)")
+#install(CODE "execute_process(COMMAND ldconfig)")
+
+# configuration
+
+# Change the include location for the case of an install location
+set(pigpio_include_dirs ${CMAKE_INSTALL_PREFIX}/include) 
+set(pigpio_libraries ${CMAKE_INSTALL_PREFIX}/lib) 
+
+# We put the generated file for installation in a different repository (i.e., ./CMakeFiles/)
+configure_file(pigpioConfig.cmake.in
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/pigpioConfig.cmake" @ONLY)
+
+install(FILES
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/pigpioConfig.cmake"
+  DESTINATION share/pigpio/cmake COMPONENT dev)
 
 # uninstall
 if(PYTHON2_FOUND)
@@ -123,18 +136,18 @@ if(PYTHON3_FOUND)
 endif()
 
 add_custom_target(uninstall
-	COMMAND rm -f ${DESTDIR}/usr/local/include/pigpio.h
-	COMMAND rm -f ${DESTDIR}/usr/local/include/pigpiod_if.h
-	COMMAND rm -f ${DESTDIR}/usr/local/include/pigpiod_if2.h
-	COMMAND rm -f ${DESTDIR}/usr/local/lib/libpigpio.so
-	COMMAND rm -f ${DESTDIR}/usr/local/lib/libpigpiod_if.so
-	COMMAND rm -f ${DESTDIR}/usr/local/lib/libpigpiod_if2.so
-	COMMAND rm -f ${DESTDIR}/usr/local/bin/pig2vcd
-	COMMAND rm -f ${DESTDIR}/usr/local/bin/pigpiod
-	COMMAND rm -f ${DESTDIR}/usr/local/bin/pigs
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/include/pigpio.h
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/include/pigpiod_if.h
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/include/pigpiod_if2.h
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/lib/libpigpio.so
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/lib/libpigpiod_if.so
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/lib/libpigpiod_if2.so
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/bin/pig2vcd
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/bin/pigpiod
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/bin/pigs
 	COMMAND cd ${CMAKE_SOURCE_DIR} && ${PY2_CMD}
 	COMMAND cd ${CMAKE_SOURCE_DIR} && ${PY3_CMD}
-	COMMAND rm -f ${DESTDIR}/usr/local/man/man1/pig*.1
-	COMMAND rm -f ${DESTDIR}/usr/local/man/man3/pig*.3
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/man/man1/pig*.1
+	COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/man/man3/pig*.3
 	COMMAND ldconfig
 )
